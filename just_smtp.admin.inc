@@ -14,6 +14,11 @@
  *   An array containing form items to place on the module settings page.
  */
 function just_smtp_admin_settings() {
+  $library = libraries_detect('PHPMailer');
+  if (!$library['installed']) {
+    drupal_set_message (t ('The PHPMailer library has not yet been installed.'), 'error');
+  }
+
   $form['onoff'] = array(
     '#type'  => 'fieldset',
     '#title' => t('Install options'),
