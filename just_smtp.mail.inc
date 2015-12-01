@@ -54,9 +54,9 @@ class JustSmtpMailSystem implements MailSystemInterface {
       $mail->SMTPSecure = 'ssl';
     if ($mail->Port == 465)
       $mail->SMTPSecure = 'ssl';
-    $mail->SMTPAuth = empty (variable_get('just_smtp_username', FALSE)) ? FALSE : TRUE;
     $mail->Username = variable_get('just_smtp_username', '');
     $mail->Password = variable_get('just_smtp_password', '');
+    $mail->SMTPAuth = empty ($mail->Username) ? FALSE : TRUE;
     $to = $this->parse_mail ($message['to']);
     if (!valid_email_address($to['mail'])) {
       drupal_set_message(t('The submitted to address (@to) is not valid.', array('@to' => $to['mail'])), 'error');
