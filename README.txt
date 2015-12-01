@@ -38,4 +38,4 @@ COMPARABLE MODULES
 Drupal has an SMTP module, but unfortunately was broken for me,
 #1044534. Fixing this appeared to be very hard as the SMTP module
 contains a half-baked MIME parser which I didn't want to fix. It also
-simply has way to many options for what its purpose is.
+simply has way too many options for what its purpose is.
