@@ -114,3 +114,38 @@ function just_smtp_admin_settings() {
 
   return system_settings_form($form);
 }
+
+
+/**
+ * Validation for the administrative settings form.
+ */
+function just_smtp_admin_settings_validate($form, &$form_state) {
+  if ($form_state['values']['just_smtp_on']) {
+
+    if (empty ($form_state['values']['just_smtp_host'])) {
+      form_set_error('just_smtp_host', t('You must enter an SMTP server address.'));
+    }
+
+    if (empty ($form_state['values']['just_smtp_port'])) {
+      form_set_error('just_smtp_port', t('You must enter an SMTP port number.'));
+    }
+  }
+
+  if (!empty ($form_state['values']['just_smtp_from']) && !valid_email_address($form_state['values']['just_smtp_from'])) {
+    form_set_error('just_smtp_from', t('The provided from e-mail address is not valid.'));
+  }
+
+  if (empty($form_state['values']['just_smtp_username'])) {
+    // If username is set empty, we must set both username/password
+    // empty as well.
+    $form_state['values']['just_smtp_password'] = '';
+  }
+  elseif (empty($form_state['values']['just_smtp_password'])) {
+    // A little hack. When form is presentend, the password is not
+    // shown (Drupal way of doing).
+    // So, if user submits the form without changing the password, we
+    //must prevent it from being reset.
+    unset($form_state['values']['just_smtp_password']);
+  }
+
+}
