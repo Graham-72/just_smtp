@@ -26,10 +26,12 @@ INSTALLATION INSTRUCTIONS
    You must turn it on explicitly.
 
 
-TESTING
--------
+DEVELOPER FRIENDLY
+------------------
 The module has been tested with the reroute_email module, and both
 work correctly together.
+
+The module can also be disabled via a $conf['just_smpt_on'] = 0 setting.
 
 
 
