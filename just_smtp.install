@@ -14,7 +14,7 @@ function just_smtp_uninstall() {
   variable_del('just_smtp_host');
   variable_del('just_smtp_port');
   variable_del('just_smtp_protocol');
-  variable_del('jkust_smtp_username');
+  variable_del('just_smtp_username');
   variable_del('just_smtp_password');
   variable_del('just_smtp_test_address');
 }
