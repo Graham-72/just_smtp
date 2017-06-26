@@ -16,6 +16,7 @@ function just_smtp_uninstall() {
   variable_del('just_smtp_protocol');
   variable_del('just_smtp_username');
   variable_del('just_smtp_password');
+  variable_del('just_smtp_encrypt');
   variable_del('just_smtp_test_address');
 }
 

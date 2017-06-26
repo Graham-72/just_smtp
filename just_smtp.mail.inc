@@ -55,7 +55,13 @@ class JustSmtpMailSystem implements MailSystemInterface {
     if ($mail->Port == 465)
       $mail->SMTPSecure = 'ssl';
     $mail->Username = variable_get('just_smtp_username', '');
-    $mail->Password = variable_get('just_smtp_password', '');
+    if(variable_get('just_smtp_encrypt', FALSE)) {
+      $password = variable_get('just_smtp_password', '');
+      $mail->Password = decrypt($password);
+    }
+    else {
+      $mail->Password = variable_get('just_smtp_password', '');
+    }
     $mail->SMTPAuth = empty ($mail->Username) ? FALSE : TRUE;
     $to = $this->parse_mail ($message['to']);
     if (!valid_email_address($to['mail'])) {

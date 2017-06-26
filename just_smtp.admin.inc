@@ -89,6 +89,18 @@ function just_smtp_admin_settings() {
     '#default_value' => variable_get('just_smtp_password', ''),
     '#description'   => t('SMTP password. If you have already entered your password before, you should leave this field blank, unless you want to change the stored password.'),
   );
+  if(module_exists('encrypt')) {
+    $form['auth']['just_smtp_encrypt'] = array(
+      '#type'          => 'checkbox',
+      '#title'         => t('Encrypt'),
+      '#default_value' => variable_get('just_smtp_encrypt', FALSE),
+      '#description'   => t('Encrypt the password with the <em>Encrypt</em> module.'),
+    );
+    if(variable_get('just_smtp_encrypt', FALSE)) {
+      $password = decrypt(variable_get('just_smtp_password', ''));
+      $form['auth']['just_smtp_password']['#default_value'] = $password;
+    }
+  }
 
   // If an address was given, send a test e-mail message.
   $test_address = variable_get('just_smtp_test_address', '');
@@ -111,6 +123,8 @@ function just_smtp_admin_settings() {
     '#default_value' => '',
     '#description'   => t('Type in an address to have a test e-mail sent there.'),
   );
+
+  $form['#submit'][] = 'just_smtp_admin_settings_submit';
 
   return system_settings_form($form);
 }
@@ -146,6 +160,35 @@ function just_smtp_admin_settings_validate($form, &$form_state) {
     // So, if user submits the form without changing the password, we
     //must prevent it from being reset.
     unset($form_state['values']['just_smtp_password']);
-  }
 
+    if(variable_get('just_smtp_encrypt', FALSE)) {
+      // SMTP password must be re-entered if encryption is being enabled.
+      if(isset($form_state['values']['just_smtp_encrypt'])
+        && $form_state['values']['just_smtp_encrypt']
+        && $form_state['values']['just_smtp_encrypt'] !== $form['auth']['just_smtp_encrypt']['#default_value']
+        ) {
+        form_set_error('just_smtp_encrypt', t('The password can only be encrypted if it is re-entered.'));
+      }
+      // SMTP password must be re-entered if encyrption is being disabled.
+      if((!isset($form_state['values']['just_smtp_encrypt'])
+        || !$form_state['values']['just_smtp_encrypt'])
+        && $form_state['values']['just_smtp_encrypt'] !== $form['auth']['just_smtp_encrypt']['#default_value']
+        ) {
+        form_set_error('just_smtp_encrypt', t('The password cannot be decrypted. It must be re-entered.'));
+      }
+    }
+  }
+}
+
+/**
+ * Submit handler for the administrative settings form.
+ */
+function just_smtp_admin_settings_submit($form, &$form_state) {
+
+  // If encryption is enabled, then encrypt the smtp password.
+  if(isset($form_state['values']['just_smtp_encrypt']) && $form_state['values']['just_smtp_encrypt']) {
+    if(isset($form_state['values']['just_smtp_password'])) {
+      $form_state['values']['just_smtp_password'] = encrypt($form_state['values']['just_smtp_password']);
+    }
+  }
 }
