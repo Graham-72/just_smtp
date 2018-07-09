@@ -63,13 +63,17 @@ class JustSmtpMailSystem implements MailSystemInterface {
       $mail->Password = variable_get('just_smtp_password', '');
     }
     $mail->SMTPAuth = empty ($mail->Username) ? FALSE : TRUE;
-    $to = $this->parse_mail ($message['to']);
-    if (!valid_email_address($to['mail'])) {
-      drupal_set_message(t('The submitted to address (@to) is not valid.', array('@to' => $to['mail'])), 'error');
-      watchdog('smtp', 'The submitted to address (@to) is not valid.', array('@from' => $to['mail']), WATCHDOG_ERROR);
-      return FALSE;
+
+    $addresses = $this->addresses_to_array($message['to']);
+    foreach ($addresses as $address) {
+      $to = $this->parse_mail ($address);
+      if (!valid_email_address($to['mail'])) {
+        drupal_set_message(t('The submitted to address (@to) is not valid.', array('@to' => $address)), 'error');
+        watchdog('smtp', 'The submitted to address (@to) is not valid.', array('@to' => $address), WATCHDOG_ERROR);
+        return FALSE;
+      }
+      $mail->addAddress ($to['mail'], $to['name']);
     }
-    $mail->addAddress ($to['mail'], $to['name']);
 
     $from = $this->parse_mail ($message['from']);
     if (!valid_email_address($from['mail'])) {
@@ -113,6 +117,17 @@ class JustSmtpMailSystem implements MailSystemInterface {
       $name = '';
     }
     return array ('mail' => $email, 'name' => $name);
+  }
+
+  /**
+   * Converts a comma-separated string of addresses into an array.
+   */
+  protected function addresses_to_array ($string) {
+    $return = explode(',', $string);
+    foreach  ($return as $id => $address) {
+      $return[$id] = trim($address);
+    }
+    return $return;
   }
 
   protected function default_mail_system () {
