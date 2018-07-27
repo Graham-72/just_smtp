@@ -1,5 +1,7 @@
 <?php
 
+use PHPMailer\PHPMailer\PHPMailer;
+
 /**
  * @file
  * Make certain internals of PHPMailer available to the outside.

@@ -60,12 +60,12 @@ function just_smtp_libraries_info() {
     'vendor url' => 'https://github.com/PHPMailer/PHPMailer',
     'download url' => 'https://github.com/PHPMailer/PHPMailer',
     'version arguments' => array(
-      'file' => 'class.phpmailer.php', // Could be any file with version info
-      'pattern' => '/\$Version = \'([0-9\.]+)\'/',
-      'lines' => 50,
+      'file' => 'VERSION', // Could be any file with version info
+      'pattern' => '/(.*)/',
+      'lines' => 1,
     ),
     'files' => array(
-      'php' => array('PHPMailerAutoload.php'), //this can be a path to the file location like array('lib/simple.js')
+      'php' => array('src/PHPMailer.php'),
     ),
   );
 

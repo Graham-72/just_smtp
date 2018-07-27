@@ -84,7 +84,7 @@ class JustSmtpMailSystem implements MailSystemInterface {
           watchdog('smtp', 'The submitted cc address (@cc) is not valid.', array('@cc' => $address), WATCHDOG_ERROR);
           return FALSE;
         }
-        $mail->addCc ($cc['mail'], $cc['name']);      
+        $mail->addCC ($cc['mail'], $cc['name']);
       }
     }
 
@@ -97,7 +97,7 @@ class JustSmtpMailSystem implements MailSystemInterface {
           watchdog('smtp', 'The submitted bcc address (@bcc) is not valid.', array('@bcc' => $address), WATCHDOG_ERROR);
           return FALSE;
         }
-        $mail->addBcc ($bcc['mail'], $bcc['name']);      
+        $mail->addBCC ($bcc['mail'], $bcc['name']);
       }
       unset($message['headers']['Bcc']);
     }
