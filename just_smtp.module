@@ -65,7 +65,7 @@ function just_smtp_libraries_info() {
       'lines' => 1,
     ),
     'files' => array(
-      'php' => array('src/PHPMailer.php'),
+      'php' => array('src/PHPMailer.php', 'src/SMTP.php'),
     ),
   );
 
