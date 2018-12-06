@@ -118,7 +118,7 @@ class JustSmtpMailSystem implements MailSystemInterface {
       watchdog('just_smtp', 'Error sending e-mail from @from to @to : !error_message', array('@from' => $from['mail'], '@to' => $to['mail'], '!error_message' => $result['return']), WATCHDOG_ERROR);
       return false;
     }
-    return $result;
+    return $result['return'];
   }
 
   protected function mime_headers ($message) {
