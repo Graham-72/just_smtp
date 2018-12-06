@@ -113,8 +113,10 @@ class JustSmtpMailSystem implements MailSystemInterface {
     $header = $this->mime_headers ($message);
     $body = $message['body'];
     $result = $mail->smtp_send($header, $body);
-    if (!$result) {
-      watchdog('just_smtp', 'Error sending e-mail from @from to @to : !error_message', array('@from' => $from['mail'], '@to' => $to['mail'], '!error_message' => $mail->ErrorInfo), WATCHDOG_ERROR);
+    if ($result['result'] == 'fail') {
+      drupal_set_message(t('Error sending e-mail from @from to @to : !error_message', array('@from' => $from['mail'], '@to' => $to['mail'], '!error_message' => $result['return'])), 'error');
+      watchdog('just_smtp', 'Error sending e-mail from @from to @to : !error_message', array('@from' => $from['mail'], '@to' => $to['mail'], '!error_message' => $result['return']), WATCHDOG_ERROR);
+      return false;
     }
     return $result;
   }
