@@ -1,7 +1,0 @@
-name = Just SMTP
-description = "Send site emails through an SMTP server of your choice."
-core = 7.x
-package = Mail
-configure = admin/config/system/just_smtp
-files[] = just_smtp.mail.inc
-dependencies[] = libraries
