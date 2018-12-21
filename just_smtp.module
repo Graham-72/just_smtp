@@ -7,23 +7,6 @@
 
 
 /**
- * Implements hook_menu().
- */
-function just_smtp_menu() {
-  $items['admin/config/system/just_smtp'] = array(
-    'title'            => 'Just SMTP configuration',
-    'page callback'    => 'drupal_get_form',
-    'page arguments'   => array('just_smtp_admin_settings'),
-    'access arguments' => array('administer just_smtp module'),
-    'description'      => 'Send site emails through an SMTP server of your choice.',
-    'file'             => 'just_smtp.admin.inc',
-  );
-  return $items;
-
-}
-
-
-/**
  * Implements hook_mail().
  */
 function just_smtp_mail($key, &$message, $params) {
