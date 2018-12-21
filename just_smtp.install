@@ -1,51 +1,76 @@
 <?php
-
 /**
 * @file
 * Detects if PHPmailer has been installed.
 */
-
+use PHPMailer\PHPMailer\PHPMailer;
 
 /**
  * Implements hook_uninstall().
  */
 function just_smtp_uninstall() {
-  variable_del('just_smtp_on');
+/*  variable_del('just_smtp_on');
   variable_del('just_smtp_host');
   variable_del('just_smtp_port');
   variable_del('just_smtp_protocol');
   variable_del('just_smtp_username');
   variable_del('just_smtp_password');
   variable_del('just_smtp_encrypt');
-  variable_del('just_smtp_test_address');
+  variable_del('just_smtp_test_address');*/
 }
-
 
 /**
  * Implements hook_requirements().
  */
-function just_smtp_requirements ($phase) {
-  $requirements = array();
-  // Ensure translations don't break during installation.
-  $t = get_t();
+function just_smtp_requirements($phase) {
+  $requirements = [];
+  $installation_type = NULL;
 
-  // Check if PHPMailer has been installed. Unfortunately we cannot
-  // detect that during install time with just using the libraries
-  // module it seems.
-  if ($phase == 'runtime') {
-    $library = libraries_detect('PHPMailer');
-    if ($library['installed']) {
-      $requirements['PHPMailer'] = array(
-        'title' => $t('PHPMailer'),
-        'severity' => REQUIREMENT_OK,
-        'value' => $library['version'],
+  // Check if PHPMailer is installed with Composer.
+  if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+    $installation_type = 'composer';
+    $docroot = end(explode('/', DRUPAL_ROOT));
+    $project_root = str_replace('/' . $docroot, '', DRUPAL_ROOT);
+    $version = file_get_contents($project_root . '/vendor/phpmailer/phpmailer/VERSION');
+  }
+  // If PHPMailer isn't installed with Composer, check if library is installed manually in '/libraries'.
+  elseif (file_exists(DRUPAL_ROOT . '/libraries/PHPMailer')) {
+    $installation_type = 'manual';
+    include_once(DRUPAL_ROOT . '/libraries/PHPMailer/src/PHPMailer.php');
+    $version = file_get_contents(DRUPAL_ROOT . '/libraries/PHPMailer/VERSION');
+  }
+  // If PHPMailer can't be found, then return requirement warning.
+  else {
+    $requirements['Just SMTP'] = array(
+      'title' => t('Just SMTP'),
+      'description' => t('PHPmailer has not been installed. Please 1) install with Composer "@composer"or 2) manually <a href="@url">download</a> and install it under /libraries/PHPMailer.', array('@composer' => 'composer require phpmailer/phpmailer', '@url' => 'https://github.com/PHPMailer/PHPMailer')),
+      'severity' => REQUIREMENT_WARNING,
+    );
+  }
+
+  if($installation_type) {
+    $installation_type_description = [
+      'composer' => 'PHPMailer is installed with Composer.',
+      'manual' => 'PHPMailer is installed manually in /libraries/PHPMailer.'
+
+    ];
+    $version_parts = explode('.', $version);
+
+    // Check major version.
+    if ($version_parts[0] != '6') {
+      $requirements['Just SMTP'] = array(
+        'title' => t('Just SMTP'),
+        'value' => $version,
+        'description' => t('PHPmailer @version is installed. PHPmailer 6.x.x is required.<br>@install_type', array('@version' => $version, '@install_type' => $installation_type_description[$installation_type])),
+        'severity' => REQUIREMENT_WARNING,
       );
     }
     else {
-      $requirements['PHPMailer'] = array(
-        'title' => $t('PHPMailer'),
-        'description' => $t('PHPmailer has not been installed. Please <a href="@url">download</a> and install it under sites/all/libraries.', array('@url' => 'https://github.com/PHPMailer/PHPMailer')),
-        'severity' => REQUIREMENT_ERROR,
+      $requirements['Just SMTP'] = array(
+        'title' => t('Just SMTP: PHPMailer'),
+        'description' => t('@install_type', array('@install_type' => $installation_type_description[$installation_type])),
+        'severity' => REQUIREMENT_OK,
+        'value' => $version,
       );
     }
   }
