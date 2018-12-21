@@ -14,23 +14,12 @@ function just_smtp_menu() {
     'title'            => 'Just SMTP configuration',
     'page callback'    => 'drupal_get_form',
     'page arguments'   => array('just_smtp_admin_settings'),
-    'access arguments' => array('administer smtp module'),
+    'access arguments' => array('administer just_smtp module'),
     'description'      => 'Send site emails through an SMTP server of your choice.',
     'file'             => 'just_smtp.admin.inc',
   );
   return $items;
 
-}
-
-/**
- * Implements hook_permission().
- */
-function just_smtp_permission() {
-  return array(
-    'administer smtp module' => array(
-      'title' => t('Administer Just SMTP module'),
-      'description' => t('Perform administration tasks for Just SMTP module.'))
-  );
 }
 
 
