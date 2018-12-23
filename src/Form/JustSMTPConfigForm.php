@@ -80,9 +80,8 @@ class JustSMTPConfigForm extends ConfigFormBase {
     }
     // If openssl is not installed, use normal protocol.
     else {
-      //variable_set('just_smtp_protocol', 'auto');
       $encryption_options = array('auto' => t('Auto'));
-      $encryption_description = t('Your PHP installation does not have SSL enabled. See the !url page on php.net for more information. Gmail requires SSL.', array('!url' => l(t('OpenSSL Functions'), 'http://php.net/openssl')));
+      $encryption_description = t('Your PHP installation does not have SSL enabled. See the @url page on php.net for more information. Gmail requires SSL.', array('@url' => l(t('OpenSSL Functions'), 'http://php.net/openssl')));
     }
     $form['server']['just_smtp_protocol'] = array(
       '#type'          => 'select',
@@ -125,18 +124,7 @@ class JustSMTPConfigForm extends ConfigFormBase {
       }
 
     }*/
-/*
-    // If an address was given, send a test e-mail message.
-    $test_address = variable_get('just_smtp_test_address', '');
-    if ($test_address != '') {
-      // Clear the variable so only one message is sent.
-      variable_del('just_smtp_test_address');
-      global $language;
-      $params['subject'] = t('Drupal SMTP test e-mail');
-      $params['body']    = array(t('If you receive this message it means your site is capable of using SMTP to send e-mail.'));
-      drupal_mail('just_smtp', 'just-smtp-test', $test_address, $language, $params);
-      drupal_set_message(t('A test e-mail has been sent to @email. You may want to !check for any error messages.', array('@email' => $test_address, '!check' => l(t('check the logs'), 'admin/reports/dblog'))));
-    }*/
+
     $form['email_test'] = array(
       '#type'  => 'fieldset',
       '#title' => t('Send test e-mail'),
@@ -226,6 +214,21 @@ class JustSMTPConfigForm extends ConfigFormBase {
     }
 
     $this->config('just_smtp.settings')->save();
+
+    // If an address was given, send a test e-mail message.
+    $test_address = $form_state->getValue('just_smtp_test_address');
+    if ($test_address != '') {
+      // Clear the variable so only one message is sent.
+      global $language;
+      $params['subject'] = t('Drupal SMTP test e-mail');
+      $params['body']    = array(t('If you receive this message it means your site is capable of using SMTP to send e-mail.'));
+
+      $newMail = \Drupal::service('plugin.manager.mail');
+      $newMail->mail('just_smtp', 'just-smtp-test', $test_address, $language, $params);
+
+      $url = Url::fromRoute('dblog.overview');
+      drupal_set_message(t('A test e-mail has been sent to @email. You may want to @check for any error messages.', array('@email' => $test_address, '@check' => Link::fromTextAndUrl(t('check the logs'), $url)->toString())));
+    }
 
     parent::submitForm($form, $form_state);
   }

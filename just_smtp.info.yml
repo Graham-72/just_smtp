@@ -3,6 +3,4 @@ description: Send site emails through an SMTP server of your choice.
 package: Mail
 type: module
 core: 8.x
-
-# configure = admin/config/system/just_smtp
-# files[] = just_smtp.mail.inc
+configure: just_smtp.config
