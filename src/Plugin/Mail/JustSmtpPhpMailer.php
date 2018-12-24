@@ -150,7 +150,7 @@ class JustSmtpPhpMailer extends PHPMailer implements MailInterface {
   $this->setFrom ($from['mail'], $from['name']);
 
   $header = $this->mime_headers ($message);
-  $body = array_shift($message['body'])->__toString();
+  $body = $message['params']['body'];
 
   try {
     $result = parent::smtpSend($header, $body);

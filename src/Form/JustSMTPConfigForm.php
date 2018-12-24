@@ -235,8 +235,8 @@ class JustSMTPConfigForm extends ConfigFormBase {
     if ($test_address != '') {
       // Clear the variable so only one message is sent.
       global $language;
-      $params['subject'] = t('Drupal SMTP test e-mail');
-      $params['body']    = array(t('If you receive this message it means your site is capable of using SMTP to send e-mail.'));
+      $params['subject'] = 'Drupal SMTP test e-mail';
+      $params['body']    = 'If you receive this message it means your site is capable of using SMTP to send e-mail.';
 
       $newMail = \Drupal::service('plugin.manager.mail');
       $newMail->mail('just_smtp', 'just-smtp-test', $test_address, $language, $params);
