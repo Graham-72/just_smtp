@@ -32,12 +32,13 @@ class JustSMTPConfigForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->configFactory->get('just_smtp.settings');
 
-    // Check if PHPMailer installed.
-    /*
-    $library = libraries_detect('PHPMailer');
-    if (!$library['installed']) {
-      drupal_set_message (t ('The PHPMailer library has not yet been installed.'), 'error');
-    }*/
+    // Check if PHPMailer is installed (either via Composer or manually).
+    if(!class_exists('PHPMailer\PHPMailer\PHPMailer')
+    && !file_exists(DRUPAL_ROOT . '/libraries/PHPMailer/src/PHPMailer.php')
+    ) {
+      drupal_set_message(t('The PHPMailer library has not yet been installed.'), 'error');
+    }
+
     $form['onoff'] = array(
       '#type'  => 'fieldset',
       '#title' => t('Install options'),
