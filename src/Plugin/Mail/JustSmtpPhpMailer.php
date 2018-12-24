@@ -93,12 +93,12 @@ class JustSmtpPhpMailer extends PHPMailer implements MailInterface {
   $addresses = $this->addresses_to_array($message['to']);
   foreach ($addresses as $address) {
     $to = $this->parse_mail ($address);
-    if (!valid_email_address($to['mail'])) {
-    drupal_set_message(t('The submitted to address (@to) is not valid.', array('@to' => $address)), 'error');
-    \Drupal::logger('just_smtp')->alert('The submitted to address (@to) is not valid.', [
-      '@to' => $address
-      ]
-    );
+    if (!\Drupal::service('email.validator')->isValid($to['mail'])) {
+      drupal_set_message(t('The submitted to address (@to) is not valid.', array('@to' => $address)), 'error');
+      \Drupal::logger('just_smtp')->alert('The submitted to address (@to) is not valid.', [
+        '@to' => $address
+        ]
+      );
     return FALSE;
     }
     $this->addAddress ($to['mail'], $to['name']);
@@ -108,7 +108,7 @@ class JustSmtpPhpMailer extends PHPMailer implements MailInterface {
     $addresses = $this->addresses_to_array($message['headers']['Cc']);
     foreach ($addresses as $address) {
     $cc = $this->parse_mail ($address);
-    if (!valid_email_address($cc['mail'])) {
+    if (!\Drupal::service('email.validator')->isValid($cc['mail'])) {
       drupal_set_message(t('The submitted cc address (@cc) is not valid.', array('@cc' => $address)), 'error');
       \Drupal::logger('just_smtp')->alert('The submitted to address (@cc) is not valid.', [
         '@cc' => $address
@@ -124,7 +124,8 @@ class JustSmtpPhpMailer extends PHPMailer implements MailInterface {
     $addresses = $this->addresses_to_array($message['headers']['Bcc']);
     foreach ($addresses as $address) {
     $bcc = $this->parse_mail ($address);
-    if (!valid_email_address($bcc['mail'])) {
+
+    if (!\Drupal::service('email.validator')->isValid($bcc['mail'])) {
       drupal_set_message(t('The submitted bcc address (@bcc) is not valid.', array('@bcc' => $address)), 'error');
       \Drupal::logger('just_smtp')->alert('The submitted to address (@bcc) is not valid.', [
         '@bcc' => $address
@@ -138,7 +139,7 @@ class JustSmtpPhpMailer extends PHPMailer implements MailInterface {
   }
 
   $from = $this->parse_mail ($message['from']);
-  if (!valid_email_address($from['mail'])) {
+  if (!\Drupal::service('email.validator')->isValid($from['mail'])) {
     drupal_set_message(t('The submitted from address (@from) is not valid.', array('@from' => $from['mail'])), 'error');
     \Drupal::logger('just_smtp')->alert('The submitted to address (@from) is not valid.', [
       '@from' => $from['mail']
