@@ -9,14 +9,9 @@ use PHPMailer\PHPMailer\PHPMailer;
  * Implements hook_uninstall().
  */
 function just_smtp_uninstall() {
-/*  variable_del('just_smtp_on');
-  variable_del('just_smtp_host');
-  variable_del('just_smtp_port');
-  variable_del('just_smtp_protocol');
-  variable_del('just_smtp_username');
-  variable_del('just_smtp_password');
-  variable_del('just_smtp_encrypt');
-  variable_del('just_smtp_test_address');*/
+  $config = \Drupal::service('config.factory');
+  $just_smtp_config = $config->getEditable('just_smtp.settings');
+  $just_smtp_config->delete();
 }
 
 /**
