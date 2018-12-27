@@ -1,8 +1,10 @@
 <?php
-/**
-* @file
-* Detects if PHPmailer has been installed.
-*/
+
+ /**
+  * @file
+  * Detects if PHPmailer has been installed.
+  */
+
 use PHPMailer\PHPMailer\PHPMailer;
 
 /**
@@ -29,15 +31,17 @@ function just_smtp_requirements($phase) {
 
   // Check if PHPMailer is installed with Composer.
   if (class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+    $mail = new PHPMailer();
     $installation_type = 'composer';
     $docroot = end(explode('/', DRUPAL_ROOT));
     $project_root = str_replace('/' . $docroot, '', DRUPAL_ROOT);
     $version = file_get_contents($project_root . '/vendor/phpmailer/phpmailer/VERSION');
   }
-  // If PHPMailer isn't installed with Composer, check if library is installed manually in '/libraries'.
+  // If PHPMailer isn't installed with Composer,
+  // check if library is installed manually in '/libraries'.
   elseif (file_exists(DRUPAL_ROOT . '/libraries/PHPMailer')) {
     $installation_type = 'manual';
-    include_once(DRUPAL_ROOT . '/libraries/PHPMailer/src/PHPMailer.php');
+    include_once DRUPAL_ROOT . '/libraries/PHPMailer/src/PHPMailer.php';
     $version = file_get_contents(DRUPAL_ROOT . '/libraries/PHPMailer/VERSION');
   }
   // If PHPMailer can't be found, then return requirement warning.
@@ -49,10 +53,10 @@ function just_smtp_requirements($phase) {
     );
   }
 
-  if($installation_type) {
+  if ($installation_type) {
     $installation_type_description = [
       'composer' => 'PHPMailer is installed with Composer.',
-      'manual' => 'PHPMailer is installed manually in /libraries/PHPMailer.'
+      'manual' => 'PHPMailer is installed manually in /libraries/PHPMailer.',
 
     ];
     $version_parts = explode('.', $version);

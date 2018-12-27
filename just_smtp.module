@@ -5,7 +5,6 @@
  * Enables Drupal to send e-mail directly to an SMTP server.
  */
 
-
 /**
  * Implements hook_mail().
  */

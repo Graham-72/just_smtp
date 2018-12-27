@@ -15,7 +15,7 @@ class JustSMTPConfigForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormID() {
+  public function getFormId() {
     return 'just_smtp_admin_settings';
   }
 
@@ -33,7 +33,7 @@ class JustSMTPConfigForm extends ConfigFormBase {
     $config = $this->configFactory->get('just_smtp.settings');
 
     // Check if PHPMailer is installed (either via Composer or manually).
-    if(!class_exists('PHPMailer\PHPMailer\PHPMailer')
+    if (!class_exists('PHPMailer\PHPMailer\PHPMailer')
     && !file_exists(DRUPAL_ROOT . '/libraries/PHPMailer/src/PHPMailer.php')
     ) {
       drupal_set_message(t('The PHPMailer library has not yet been installed.'), 'error');
@@ -148,22 +148,22 @@ class JustSMTPConfigForm extends ConfigFormBase {
 
     if ($form_state->getValue('just_smtp_on')) {
 
-      if (empty ($form_state->getValue('just_smtp_host'))) {
+      if (empty($form_state->getValue('just_smtp_host'))) {
         $form_state->setError($form['server']['just_smtp_host'], $this->t('You must enter an SMTP server address.'));
       }
 
-      if (empty ($form_state->getValue('just_smtp_port'))) {
+      if (empty($form_state->getValue('just_smtp_port'))) {
         $form_state->setError($form['server']['just_smtp_port'], $this->t('You must enter an SMTP port number.'));
       }
     }
 
-    if (empty ($form_state->getValue('just_smtp_username'))) {
+    if (empty($form_state->getValue('just_smtp_username'))) {
       // If username is set empty, we must set both username/password
       // empty as well.
       $form_state->setValue('just_smtp_password', '');
     }
 
-    elseif (empty ($form_state->getValue('just_smtp_password'))) {
+    elseif (empty($form_state->getValue('just_smtp_password'))) {
 /*
       if(variable_get('just_smtp_encrypt', FALSE)) {
         // SMTP password must be re-entered if encryption is being enabled.
@@ -242,7 +242,11 @@ class JustSMTPConfigForm extends ConfigFormBase {
       $newMail->mail('just_smtp', 'just-smtp-test', $test_address, $language, $params);
 
       $url = Url::fromRoute('dblog.overview');
-      drupal_set_message(t('A test e-mail has been sent to @email. You may want to @check for any error messages.', array('@email' => $test_address, '@check' => Link::fromTextAndUrl(t('check the logs'), $url)->toString())));
+      $message = [
+        '@email' => $test_address,
+        '@check' => Link::fromTextAndUrl(t('check the logs'), $url)->toString(),
+      ];
+      drupal_set_message(t('A test e-mail has been sent to @email. You may want to @check for any error messages.', $message));
     }
 
     parent::submitForm($form, $form_state);
