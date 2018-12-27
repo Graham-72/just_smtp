@@ -47,12 +47,7 @@ class JustSmtpPhpMailer extends PHPMailer implements MailInterface {
    *   The formatted $message.
    */
   public function format(array $message) {
-
-    if (!$this->config->get('just_smtp_on')) {
-      return $this->defaultMailSystem()->format($message);
-    }
-
-    return $message;
+    return $this->defaultMailSystem()->format($message);
   }
 
   /**
