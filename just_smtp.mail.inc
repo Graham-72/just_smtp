@@ -22,11 +22,7 @@ class JustSmtpMailSystem implements MailSystemInterface {
    *   The formatted $message.
    */
   public function format(array $message) {
-    if (!variable_get('just_smtp_on', FALSE)) {
-      return $this->default_mail_system ()->format ($message);
-    }
-
-    return $message;
+    return $this->default_mail_system()->format($message);
   }
 
   /**
