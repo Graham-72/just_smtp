@@ -5,11 +5,11 @@
 * Detects if PHPmailer has been installed.
 */
 
-
 /**
  * Implements hook_uninstall().
  */
 function just_smtp_uninstall() {
+  // Remove variables.
   variable_del('just_smtp_on');
   variable_del('just_smtp_host');
   variable_del('just_smtp_port');
@@ -18,8 +18,26 @@ function just_smtp_uninstall() {
   variable_del('just_smtp_password');
   variable_del('just_smtp_encrypt');
   variable_del('just_smtp_test_address');
+  variable_del('just_smtp_prior_mailsystem');
 }
 
+/**
+ * Implements hook_disable().
+ */
+function just_smtp_disable() {
+  // Restore prior mailsystem.
+  $current_mailsystem = variable_get('mail_system', array('default-system' => 'DefaultMailSystem'));
+  if ($current_mailsystem['default-system'] == 'JustSmtpMailSystem') {
+    $prior_mailsystem = variable_get('just_smtp_prior_mailsystem', 'DefaultMailSystem');
+
+    // Clone current mail system and replace 'default-system'.
+    $new_mailsystem = $current_mailsystem;
+    $new_mailsystem['default-system'] = $prior_mailsystem;
+    variable_set('mail_system', $new_mailsystem);
+  }
+
+  variable_set('just_smtp_on', '0');
+}
 
 /**
  * Implements hook_requirements().

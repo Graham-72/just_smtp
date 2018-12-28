@@ -191,4 +191,32 @@ function just_smtp_admin_settings_submit($form, &$form_state) {
       $form_state['values']['just_smtp_password'] = encrypt($form_state['values']['just_smtp_password']);
     }
   }
+
+  $current_mailsystem = variable_get('mail_system', array('default-system' => 'DefaultMailSystem'));
+
+  // If enabled, set Just SMTP as default mail system.
+  if ($form_state['values']['just_smtp_on'] == '1'
+    && $current_mailsystem['default-system'] != 'JustSmtpMailSystem'
+  ) {
+
+    variable_set('just_smtp_prior_mailsystem', $current_mailsystem['default-system']);
+
+    // Clone current mail system and replace 'default-system'.
+    $new_mailsystem = $current_mailsystem;
+    $new_mailsystem['default-system'] = 'JustSmtpMailSystem';
+    variable_set('mail_system', $new_mailsystem);
+  }
+  // If disabled, set prior mail system as the default mail system.
+  elseif ($form_state['values']['just_smtp_on'] == '0'
+    && $current_mailsystem['default-system'] == 'JustSmtpMailSystem'
+  ) {
+
+    $prior_mailsystem = variable_get('just_smtp_prior_mailsystem', 'DefaultMailSystem');
+
+    // Clone current mail system and replace 'default-system'.
+    $new_mailsystem = $current_mailsystem;
+    $new_mailsystem['default-system'] = $prior_mailsystem;
+    variable_set('mail_system', $new_mailsystem);
+  }
+
 }
