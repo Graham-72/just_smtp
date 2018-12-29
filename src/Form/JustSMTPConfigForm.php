@@ -214,16 +214,22 @@ class JustSMTPConfigForm extends ConfigFormBase {
         ->set('just_smtp_password', $form_state->getValue('just_smtp_password'));
     }
 
+    $current_mailsystem = $this->config('system.mail')->get('interface.default');
+
     // If enabled, set Just SMTP as default mail system.
-    if ($form_state->getValue('just_smtp_on') == '1') {
-      $current_mailsystem = $this->config('system.mail')->get('interface.default');
+    if ($form_state->getValue('just_smtp_on') == '1'
+      && $current_mailsystem != 'JustSmtpPhpMailer'
+    ) {
 
       $this->config('just_smtp.settings')
         ->set('just_smtp_prior_mailsystem', $current_mailsystem);
       \Drupal::configFactory()->getEditable('system.mail')->set('interface.default', 'JustSmtpPhpMailer')->save();
     }
     // If disabled, set prior mail system as the default mail system.
-    else {
+    elseif ($form_state->getValue('just_smtp_on') == '0'
+    && $current_mailsystem == 'JustSmtpPhpMailer'
+    ) {
+
       $prior_mailsystem = $this->config('just_smtp.settings')->get('just_smtp_prior_mailsystem');
       \Drupal::configFactory()->getEditable('system.mail')->set('interface.default', $prior_mailsystem)->save();
     }

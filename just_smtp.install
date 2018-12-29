@@ -13,13 +13,17 @@ use PHPMailer\PHPMailer\PHPMailer;
 function just_smtp_uninstall() {
   $config = \Drupal::service('config.factory');
 
-  // Set default mail system back to prior mail system.
-  $prior_mailsystem = $config->getEditable('just_smtp.settings')->get('just_smtp_prior_mailsystem');
-  $config->getEditable('system.mail')->set('interface.default', $prior_mailsystem)->save();
+  $current_mailsystem = $config->getEditable('system.mail')->get('interface.default');
 
-  // Remove just_smtp config.
-  $just_smtp_config = $config->getEditable('just_smtp.settings');
-  $just_smtp_config->delete();
+  if ($current_mailsystem == 'JustSmtpPhpMailer') {
+    // Set default mail system back to prior mail system.
+    $prior_mailsystem = $config->getEditable('just_smtp.settings')->get('just_smtp_prior_mailsystem');
+    $config->getEditable('system.mail')->set('interface.default', $prior_mailsystem)->save();
+
+    // Remove just_smtp config.
+    $just_smtp_config = $config->getEditable('just_smtp.settings');
+    $just_smtp_config->delete();
+  }
 }
 
 /**
