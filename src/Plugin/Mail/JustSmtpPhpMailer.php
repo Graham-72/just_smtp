@@ -157,7 +157,7 @@ class JustSmtpPhpMailer extends PHPMailer implements MailInterface {
         '@to' => $to['mail'],
         '@error_message' => $error_message,
       ];
-      drupal_set_message(t('Error sending e-mail from @from to @to : @error_message', $message, 'error'));
+      drupal_set_message(t('Error sending e-mail from @from to @to : @error_message', $message), 'error');
       \Drupal::logger('just_smtp')->alert('Error sending e-mail from @from to @to : @error_message', [
         '@from' => $from['mail'],
         '@to' => $to['mail'],
