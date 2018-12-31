@@ -6,6 +6,7 @@ use Drupal\Core\Mail\MailInterface;
 use Drupal\Core\Mail\Plugin\Mail;
 use Drupal\Core\Mail\Plugin\Mail\PhpMail;
 use Drupal\Component\Utility\Unicode;
+use Drupal\encrypt\Entity\EncryptionProfile;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -77,8 +78,11 @@ class JustSmtpPhpMailer extends PHPMailer implements MailInterface {
       $this->Username = ($this->config->get('just_smtp_username') ? $this->config->get('just_smtp_username') : '');
     }
     if ($this->config->get('just_smtp_encrypt')) {
+      $encrypt_profile = ($this->config->get('just_smtp_encrypt_profile') ? $this->config->get('just_smtp_encrypt_profile') : '');
       $password = ($this->config->get('just_smtp_password') ? $this->config->get('just_smtp_password') : '');
-      $this->Password = decrypt($password);
+      $encryption_profile = EncryptionProfile::load($encrypt_profile);
+
+      $this->Password = \Drupal::service('encryption')->decrypt($password, $encryption_profile);
     }
     else {
       $this->Password = ($this->config->get('just_smtp_password') ? $this->config->get('just_smtp_password') : '');

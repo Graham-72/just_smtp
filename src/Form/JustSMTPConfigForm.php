@@ -6,6 +6,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\encrypt\Entity\EncryptionProfile;
 
 /**
  * Implements the Just SMTP admin settings form.
@@ -110,21 +111,37 @@ class JustSMTPConfigForm extends ConfigFormBase {
       '#description'   => t('SMTP password. If you have already entered your password before, you should leave this field blank, unless you want to change the stored password.'),
     );
 
-    /*
-    if(module_exists('encrypt')) {
+    if (\Drupal::moduleHandler()->moduleExists('encrypt')) {
       $form['auth']['just_smtp_encrypt'] = array(
         '#type'          => 'checkbox',
         '#title'         => t('Encrypt'),
-        //'#default_value' => variable_get('just_smtp_encrypt', FALSE),
+        '#default_value' => ($config->get('just_smtp_encrypt') ? $config->get('just_smtp_encrypt') : '0'),
         '#description'   => t('Encrypt the password with the <em>Encrypt</em> module.'),
       );
 
-      if(variable_get('just_smtp_encrypt', FALSE)) {
-        $password = decrypt(variable_get('just_smtp_password', ''));
+      $profile_manager = \Drupal::service('encrypt.encryption_profile.manager');
+      $profiles = $profile_manager->getEncryptionProfileNamesAsOptions();
+      $profile_default = ($config->get('just_smtp_encrypt_profile') ? $config->get('just_smtp_encrypt_profile') : '');
+
+      $form['auth']['just_smtp_encrypt_profile'] = array(
+        '#type'          => 'select',
+        '#title'         => t('Encryption Profile'),
+        '#options'       => $profiles,
+        '#default_value' => $profile_default,
+        '#description'   => 'If no profiles exist, create an <a href="/admin/config/system/encryption/profiles">Encryption profile</a>.'
+      );
+
+      if(($config->get('just_smtp_encrypt') ? $config->get('just_smtp_encrypt') : 0)
+        && !empty($profile_default)
+      ) {
+        $encryption_profile = EncryptionProfile::load($profile_default);
+        $encrypted_password = ($config->get('just_smtp_password') ? $config->get('just_smtp_password') : '');
+        $password = \Drupal::service('encryption')->encrypt($encrypted_password, $encryption_profile);
+
         $form['auth']['just_smtp_password']['#default_value'] = $password;
       }
 
-    }*/
+    }
 
     $form['email_test'] = array(
       '#type'  => 'fieldset',
@@ -157,30 +174,19 @@ class JustSMTPConfigForm extends ConfigFormBase {
       }
     }
 
-    if (empty($form_state->getValue('just_smtp_username'))) {
-      // If username is set empty, we must set both username/password
-      // empty as well.
-      $form_state->setValue('just_smtp_password', '');
-    }
-
-    elseif (empty($form_state->getValue('just_smtp_password'))) {
-/*
-      if(variable_get('just_smtp_encrypt', FALSE)) {
-        // SMTP password must be re-entered if encryption is being enabled.
-        if(isset($form_state['values']['just_smtp_encrypt'])
-          && $form_state['values']['just_smtp_encrypt']
-          && $form_state['values']['just_smtp_encrypt'] !== $form['auth']['just_smtp_encrypt']['#default_value']
-          ) {
-          form_set_error('just_smtp_encrypt', t('The password can only be encrypted if it is re-entered.'));
-        }
-        // SMTP password must be re-entered if encyrption is being disabled.
-        if((!isset($form_state['values']['just_smtp_encrypt'])
-          || !$form_state['values']['just_smtp_encrypt'])
-          && $form_state['values']['just_smtp_encrypt'] !== $form['auth']['just_smtp_encrypt']['#default_value']
-          ) {
-          form_set_error('just_smtp_encrypt', t('The password cannot be decrypted. It must be re-entered.'));
-        }
-      }*/
+    if(!$form_state->getValue('just_smtp_password') && !empty($form_state->getValue('just_smtp_username'))) {
+      // SMTP password must be re-entered if encryption is being enabled.
+      if($form_state->getValue('just_smtp_encrypt')
+        && $form_state->getValue('just_smtp_encrypt') != $form['auth']['just_smtp_encrypt']['#default_value']
+        ) {
+          $form_state->setError($form['auth']['just_smtp_encrypt'], $this->t('The password can only be encrypted if it is re-entered.'));
+      }
+      // SMTP password must be re-entered if encyrption is being disabled.
+      if(!$form_state->getValue('just_smtp_encrypt')
+        && $form_state->getValue('just_smtp_encrypt') != $form['auth']['just_smtp_encrypt']['#default_value']
+        ) {
+          $form_state->setError($form['auth']['just_smtp_encrypt'], $this->t('The password cannot be decrypted. It must be re-entered.'));
+      }
     }
 
     parent::validateForm($form, $form_state);
@@ -191,27 +197,37 @@ class JustSMTPConfigForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
-    // If encryption is enabled, then encrypt the smtp password.
-  /*  if(isset($form_state['values']['just_smtp_encrypt']) && $form_state['values']['just_smtp_encrypt']) {
-      if(isset($form_state['values']['just_smtp_password'])) {
-        $form_state['values']['just_smtp_password'] = encrypt($form_state['values']['just_smtp_password']);
-      }
-    }
-    */
-
     $this->config('just_smtp.settings')
       ->set('just_smtp_on', $form_state->getValue('just_smtp_on'))
       ->set('just_smtp_host', $form_state->getValue('just_smtp_host'))
       ->set('just_smtp_port', $form_state->getValue('just_smtp_port'))
       ->set('just_smtp_protocol', $form_state->getValue('just_smtp_protocol'))
-      ->set('just_smtp_username', $form_state->getValue('just_smtp_username'));
+      ->set('just_smtp_username', $form_state->getValue('just_smtp_username'))
+      ->set('just_smtp_encrypt', $form_state->getValue('just_smtp_encrypt'))
+      ->set('just_smtp_encrypt_profile', $form_state->getValue('just_smtp_encrypt_profile'));
 
-    // The password is unknown to the form, so don't overwrite it
-    // unless 1) a new password is being submitted or 2) if the username
-    // is empty, in which case the password was set to empty in validateForm().
-    if (!empty($form_state->getValue('just_smtp_password')) || empty($form_state->getValue('just_smtp_username'))) {
+    // If username is empty, then set password as empty, too.
+    if(empty($form_state->getValue('just_smtp_username'))) {
+      $password = '';
+    }
+    elseif ($form_state->getValue('just_smtp_password')) {
+      $password = $form_state->getValue('just_smtp_password');
+    }
+    // If password field is empty, then set to null.
+    else {
+      $password = null;
+    }
+
+    // If encryption is enabled, then encrypt the smtp password.
+    if ($form_state->getValue('just_smtp_encrypt') && $form_state->getValue('just_smtp_password')) {
+      $encryption_profile = EncryptionProfile::load($form_state->getValue('just_smtp_encrypt_profile'));
+      $password = \Drupal::service('encryption')->encrypt($form_state->getValue('just_smtp_password'), $encryption_profile);
+    }
+
+    // If user entered a password, then save it.
+    if (!is_null($password)) {
       $this->config('just_smtp.settings')
-        ->set('just_smtp_password', $form_state->getValue('just_smtp_password'));
+      ->set('just_smtp_password', $password);
     }
 
     $current_mailsystem = $this->config('system.mail')->get('interface.default');

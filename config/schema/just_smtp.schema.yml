@@ -23,6 +23,9 @@ just_smtp.settings:
     just_smtp_encrypt:
       type: boolean
       label: 'Encrypt password'
+    just_smtp_encrypt_profile:
+      type: string
+      lable: 'Encryption profile'
     just_smtp_prior_mailsystem:
       type: string
       label: 'Prior Mailsystem'
