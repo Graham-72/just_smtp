@@ -128,10 +128,10 @@ class JustSMTPConfigForm extends ConfigFormBase {
         '#title'         => t('Encryption Profile'),
         '#options'       => $profiles,
         '#default_value' => $profile_default,
-        '#description'   => 'If no profiles exist, create an <a href="/admin/config/system/encryption/profiles">Encryption profile</a>.'
+        '#description'   => 'If no profiles exist, create an <a href="/admin/config/system/encryption/profiles">Encryption profile</a>.',
       );
 
-      if(($config->get('just_smtp_encrypt') ? $config->get('just_smtp_encrypt') : 0)
+      if (($config->get('just_smtp_encrypt') ? $config->get('just_smtp_encrypt') : 0)
         && !empty($profile_default)
       ) {
         $encryption_profile = EncryptionProfile::load($profile_default);
@@ -174,18 +174,18 @@ class JustSMTPConfigForm extends ConfigFormBase {
       }
     }
 
-    if(!$form_state->getValue('just_smtp_password') && !empty($form_state->getValue('just_smtp_username'))) {
+    if (!$form_state->getValue('just_smtp_password') && !empty($form_state->getValue('just_smtp_username'))) {
       // SMTP password must be re-entered if encryption is being enabled.
-      if($form_state->getValue('just_smtp_encrypt')
+      if ($form_state->getValue('just_smtp_encrypt')
         && $form_state->getValue('just_smtp_encrypt') != $form['auth']['just_smtp_encrypt']['#default_value']
         ) {
-          $form_state->setError($form['auth']['just_smtp_encrypt'], $this->t('The password can only be encrypted if it is re-entered.'));
+        $form_state->setError($form['auth']['just_smtp_encrypt'], $this->t('The password can only be encrypted if it is re-entered.'));
       }
       // SMTP password must be re-entered if encyrption is being disabled.
-      if(!$form_state->getValue('just_smtp_encrypt')
+      if (!$form_state->getValue('just_smtp_encrypt')
         && $form_state->getValue('just_smtp_encrypt') != $form['auth']['just_smtp_encrypt']['#default_value']
         ) {
-          $form_state->setError($form['auth']['just_smtp_encrypt'], $this->t('The password cannot be decrypted. It must be re-entered.'));
+        $form_state->setError($form['auth']['just_smtp_encrypt'], $this->t('The password cannot be decrypted. It must be re-entered.'));
       }
     }
 
@@ -207,7 +207,7 @@ class JustSMTPConfigForm extends ConfigFormBase {
       ->set('just_smtp_encrypt_profile', $form_state->getValue('just_smtp_encrypt_profile'));
 
     // If username is empty, then set password as empty, too.
-    if(empty($form_state->getValue('just_smtp_username'))) {
+    if (empty($form_state->getValue('just_smtp_username'))) {
       $password = '';
     }
     elseif ($form_state->getValue('just_smtp_password')) {
@@ -215,7 +215,7 @@ class JustSMTPConfigForm extends ConfigFormBase {
     }
     // If password field is empty, then set to null.
     else {
-      $password = null;
+      $password = NULL;
     }
 
     // If encryption is enabled, then encrypt the smtp password.
@@ -227,7 +227,7 @@ class JustSMTPConfigForm extends ConfigFormBase {
     // If user entered a password, then save it.
     if (!is_null($password)) {
       $this->config('just_smtp.settings')
-      ->set('just_smtp_password', $password);
+        ->set('just_smtp_password', $password);
     }
 
     $current_mailsystem = $this->config('system.mail')->get('interface.default');
