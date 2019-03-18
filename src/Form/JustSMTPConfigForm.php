@@ -193,13 +193,18 @@ class JustSMTPConfigForm extends ConfigFormBase {
         ) {
         $form_state->setError($form['auth']['just_smtp_encrypt'], $this->t('The password cannot be decrypted. It must be re-entered.'));
       }
-
-      // Conditional behavior for Encrypt Profile field.
+      // SMTP password must be re-entered if changing encryption profiles.
       if ($form_state->getValue('just_smtp_encrypt')
-        && empty($form_state->getValue('just_smtp_encrypt_profile'))
+        && $form_state->getValue('just_smtp_encrypt_profile') != $form['auth']['just_smtp_encrypt_profile']['#default_value']
         ) {
-        $form_state->setError($form['auth']['just_smtp_encrypt_profile'], $this->t('An Encryption profile must be selected.'));
+        $form_state->setError($form['auth']['just_smtp_password'], $this->t('When changing Encryption profiles, the password must be re-entered.'));
       }
+    }
+    // Conditional behavior for Encrypt Profile field.
+    if ($form_state->getValue('just_smtp_encrypt')
+      && empty($form_state->getValue('just_smtp_encrypt_profile'))
+      ) {
+      $form_state->setError($form['auth']['just_smtp_encrypt_profile'], $this->t('An Encryption profile must be selected.'));
     }
 
     parent::validateForm($form, $form_state);
