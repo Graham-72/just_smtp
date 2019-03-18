@@ -10,8 +10,7 @@ this though.
 REQUIREMENTS
 ------------
 * Access to an SMTP server
-* phpmailer installed as library.
-  Get it here: https://github.com/PHPMailer/PHPMailer
+* PHPMailer 6 (https://github.com/PHPMailer/PHPMailer)
 * Optional: To connect to an SMTP server using SSL, you need to have the
   openssl package installed on your server, and your webserver and PHP
   installation need to have additional components installed and configured.
@@ -19,9 +18,19 @@ REQUIREMENTS
 
 INSTALLATION INSTRUCTIONS
 -------------------------
-1. "git clone" the latest PHPMailer under sites/all/libraries.
-2. Install the libraries module.
-3. Login as administrator and configure the module
+The PHPMailer library can be installed two ways - 1) with Composer
+or 2) via manual download.
+
+To install via Composer
+1. $ composer require phpmailer/phpmailer:"^6.0"
+2. Login as administrator and configure the module
+   (/admin/config/system/just_smtp).
+   You must turn it on explicitly.
+
+To install via manual download
+1. Download the PHPMailer (https://github.com/PHPMailer/PHPMailer)
+   to 'sites/all/libraries/PHPMailer'.
+2. Login as administrator and configure the module
    (/admin/config/system/just_smtp).
    You must turn it on explicitly.
 
