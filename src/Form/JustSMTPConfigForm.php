@@ -120,7 +120,8 @@ class JustSMTPConfigForm extends ConfigFormBase {
       );
 
       $profile_manager = \Drupal::service('encrypt.encryption_profile.manager');
-      $profiles = $profile_manager->getEncryptionProfileNamesAsOptions();
+      $profiles = ['' => 'Select a profile'];
+      $profiles = array_merge($profiles, $profile_manager->getEncryptionProfileNamesAsOptions());
       $profile_default = ($config->get('just_smtp_encrypt_profile') ? $config->get('just_smtp_encrypt_profile') : '');
 
       $form['auth']['just_smtp_encrypt_profile'] = array(
@@ -129,6 +130,11 @@ class JustSMTPConfigForm extends ConfigFormBase {
         '#options'       => $profiles,
         '#default_value' => $profile_default,
         '#description'   => 'If no profiles exist, create an <a href="/admin/config/system/encryption/profiles">Encryption profile</a>.',
+        '#states' => array(
+          'visible' => array(
+            ':input[name="just_smtp_encrypt"]' => array('checked' => TRUE),
+          ),
+        ),
       );
 
       if (($config->get('just_smtp_encrypt') ? $config->get('just_smtp_encrypt') : 0)
@@ -186,6 +192,13 @@ class JustSMTPConfigForm extends ConfigFormBase {
         && $form_state->getValue('just_smtp_encrypt') != $form['auth']['just_smtp_encrypt']['#default_value']
         ) {
         $form_state->setError($form['auth']['just_smtp_encrypt'], $this->t('The password cannot be decrypted. It must be re-entered.'));
+      }
+
+      // Conditional behavior for Encrypt Profile field.
+      if ($form_state->getValue('just_smtp_encrypt')
+        && empty($form_state->getValue('just_smtp_encrypt_profile'))
+        ) {
+        $form_state->setError($form['auth']['just_smtp_encrypt_profile'], $this->t('An Encryption profile must be selected.'));
       }
     }
 
